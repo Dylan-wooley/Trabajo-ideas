@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moldes de strass</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f4f3;--panel:#fff;--ink:#1c2427;--mute:#66757a;--line:#d9e0e0;--acc:#0e7c74;--accT:#fff;--mat:#cfe2d6;--matL:#b9d3c4;--paper:#fbfdfc;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14191a;--panel:#1d2425;--ink:#e6eeee;--mute:#92a3a6;--line:#2f3a3c;--acc:#3fc1b5;--accT:#062320;--mat:#26382f;--matL:#2f463a;--paper:#eef2f0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14191a;--panel:#1d2425;--ink:#e6eeee;--mute:#92a3a6;--line:#2f3a3c;--acc:#3fc1b5;--accT:#062320;--mat:#26382f;--matL:#2f463a;--paper:#eef2f0;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Figtree,"Segoe UI",system-ui,sans-serif;display:grid;grid-template-columns:340px 1fr;min-height:100vh}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:18px;overflow-y:auto;max-height:100vh;position:sticky;top:0}
+h1{font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:20px 0 8px}
+p.s{color:var(--mute);font-size:13px;margin:4px 0}
+label{display:block;font-size:13px;color:var(--mute);margin:8px 0 3px}
+input[type=number],select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+input[type=file]{width:100%;font-size:13px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.sizes{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.sizes label,.chk{display:flex;align-items:center;gap:7px;color:var(--ink);margin:2px 0;font-size:14px}
+button{font:inherit;font-weight:600;border:1px solid var(--acc);background:var(--acc);color:var(--accT);padding:9px 14px;border-radius:6px;cursor:pointer;width:100%;margin-top:12px}
+button.sec{background:transparent;color:var(--acc)}button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.grp{margin:10px 0 2px;font-weight:600;display:flex;align-items:center;gap:8px}
+.sw{width:16px;height:16px;border-radius:50%;border:1px solid var(--line)}
+.ly{display:flex;align-items:center;gap:8px;padding:3px 0 3px 24px;font-size:14px}.ly b{margin-left:auto;font-variant-numeric:tabular-nums}
+main{padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:14px}
+#stage{flex:1;min-height:420px;background-color:var(--mat);background-image:linear-gradient(var(--matL) 1px,transparent 1px),linear-gradient(90deg,var(--matL) 1px,transparent 1px);background-size:24px 24px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+#stage svg{max-width:100%;max-height:calc(100vh - 150px);background:var(--paper);box-shadow:0 2px 14px rgba(0,0,0,.18)}
+#msg{color:var(--mute);text-align:center;max-width:380px}
+@media(max-width:820px){body{grid-template-columns:1fr}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<aside>
+<h1>Moldes de strass</h1>
+<p class="s">Cargá un diseño y la app llena cada color con círculos del tamaño de tus strass.</p>
+<h2>1. Diseño</h2>
+<input type="file" id="file" accept="image/*,.svg">
+<div class="row"><div><label for="wmm">Ancho real (mm)</label><input type="number" id="wmm" value="150" min="10" max="600"></div>
+<div><label for="ncol">Cantidad de colores</label><input type="number" id="ncol" value="1" min="1" max="8"></div></div>
+<label class="chk"><input type="checkbox" id="rmbg" checked> Ignorar el fondo (transparente o color liso)</label>
+<h2>2. Strass</h2>
+<div class="sizes" id="sizes"></div>
+<label for="custom">Otra medida (mm), opcional</label><input type="number" id="custom" step="0.1" min="1" max="20" placeholder="ej. 3.5">
+<label for="kind">Qué generar</label><select id="kind"><option value="fill">Relleno del diseño</option><option value="outline">Solo contorno (marco de strass)</option></select>
+<div id="oopts" style="display:none"><p class="s">En este modo se usa el tamaño más grande que tengas marcado.</p>
+<label for="opos">Posición de la línea</label><select id="opos"><option value="out">Por fuera del diseño</option><option value="edge">Justo sobre el borde</option><option value="in">Por dentro del diseño</option></select>
+<label for="odist">Distancia entre el diseño y la primera línea (mm)</label><input type="number" id="odist" value="0" step="0.1" min="0"><p class="s">No aplica a «Justo sobre el borde».</p>
+<div class="row"><div><label for="orows">Filas</label><input type="number" id="orows" value="1" min="1" max="5"></div><div><label for="ogap">Espacio entre strass (mm)</label><input type="number" id="ogap" value="1" step="0.1" min="0"></div></div></div>
+<label for="ord">Orden de colocación</label><select id="ord"><option value="grid">Relleno lineal, fila por fila de arriba abajo</option><option value="rows">Filas alineadas al contorno; chicos solo donde no entran los grandes</option><option value="edge">Borde con el más chico, adentro con los grandes</option><option value="small">Chicos primero</option><option value="big">Grandes primero</option></select>
+<label class="chk"><input type="checkbox" id="sq"> Columnas alineadas (una sobre otra, sin zigzag)</label>
+<label class="chk"><input type="checkbox" id="reco"> Recomendado: elegir la mejor combinación entre los tamaños marcados</label><p class="s">Prueba cada combinación (hasta 3 tamaños) y elige la que cubre más el diseño con menos tamaños y menos strass. Marcá varios para que pueda elegir.</p>
+<p class="s">Con más de un tamaño marcado, el más grande se coloca primero y los chicos rellenan los huecos.</p>
+<div class="row"><div><label for="gap">Espacio entre strass (mm)</label><input type="number" id="gap" value="0.2" step="0.05" min="0"></div>
+<div><label for="tol">Tolerancia de borde (%)</label><input type="number" id="tol" value="10" min="0" max="60"></div></div>
+<label for="rings">Filas de contorno (no aplica a «Filas alineadas»)</label><input type="number" id="rings" value="2" min="0" max="12">
+<button id="go" disabled>Generar moldes</button>
+<h2>3. Capas</h2>
+<div id="layers"><p class="s">Todavía no hay capas.</p></div>
+<h2>4. Exportar</h2>
+<label for="pg">PDF: una página por</label>
+<select id="pg"><option value="color">Color (todos los tamaños juntos)</option><option value="layer">Capa (color y tamaño)</option></select>
+<div class="row"><button id="xsvg" class="sec" disabled>SVG</button><button id="xpdf" disabled>PDF 1:1</button></div>
+<p class="s" id="xnote">Se exportan solo las capas tildadas. Cada archivo lleva marcas de registro en las cuatro esquinas.</p>
+</aside>
+<main>
+<div class="bar"><label class="chk" style="margin:0"><input type="checkbox" id="showimg" checked> Mostrar diseño de fondo</label><label class="chk" style="margin:0">Fondo <input type="color" id="bgc" value="#eef2f0"></label><label class="chk" style="margin:0">Strass <input type="color" id="stc" value="#1f6fc4"></label><label class="chk" style="margin:0"><input type="checkbox" id="stOrig" checked> Color original</label><span id="info" style="color:var(--mute)"></span></div>
+<div id="stage"><div id="msg">Cargá un SVG, PNG o JPG para empezar.</div></div>
+</main>
+<script>
+const SS=[["SS6",2],["SS8",2.4],["SS10",2.8],["SS12",3.2],["SS16",4],["SS20",4.8],["SS30",6.4],["SS34",7.2]];
+const $=id=>document.getElementById(id), M=12, f3=v=>+v.toFixed(3);
+let img=null,imgURL="",D=null; // D: {w,h,layers:[{ci,hex,n,d,pts,on}],cols}
+$("sizes").innerHTML=SS.map(([n,d],i)=>`<label><input type="checkbox" data-d="${d}" data-n="${n}" ${n=="SS10"||n=="SS12"?"checked":""}>${n} <span style="color:var(--mute)">${d} mm</span></label>`).join("");
+
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{img=im;imgURL=r.result;$("go").disabled=false;D=null;$("layers").innerHTML='<p class="s">Todavía no hay capas.</p>';$("xsvg").disabled=$("xpdf").disabled=true;$("stage").innerHTML='<div id="msg">Diseño cargado. Elegí los tamaños y tocá «Generar moldes».</div>'};im.onerror=()=>alert("No pude leer ese archivo.");im.src=r.result};r.readAsDataURL(f)};
+$("go").onclick=()=>{$("go").textContent="Generando…";$("go").disabled=true;setTimeout(()=>{try{generate()}catch(e){alert("Error: "+e.message)}$("go").textContent="Generar moldes";$("go").disabled=false},30)};
+
+function kmeans(px,k){const d2=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;let cs=[px[0]];
+while(cs.length<k){let b=px[0],bd=-1;for(const p of px){let m=1e9;for(const c of cs){const d=d2(p,c);if(d<m)m=d}if(m>bd){bd=m;b=p}}cs.push(b)}
+for(let it=0;it<8;it++){const s=cs.map(()=>[0,0,0,0]);for(const p of px){let bi=0,bd=1e9;cs.forEach((c,i)=>{const d=d2(p,c);if(d<bd){bd=d;bi=i}});const a=s[bi];a[0]+=p[0];a[1]+=p[1];a[2]+=p[2];a[3]++}
+cs=cs.map((c,i)=>s[i][3]?[s[i][0]/s[i][3],s[i][1]/s[i][3],s[i][2]/s[i][3]]:c)}return cs}
+
+function generate(){
+ const rings=Math.max(0,Math.min(12,+$("rings").value||0)),wMm=+$("wmm").value,k=Math.max(1,Math.min(8,+$("ncol").value||1)),gap=Math.max(0,+$("gap").value||0),tol=(+$("tol").value||0)/100;
+ let sizes=[...document.querySelectorAll("#sizes input:checked")].map(i=>({n:i.dataset.n,d:+i.dataset.d}));
+ const cu=+$("custom").value;if(cu>0)sizes.push({n:cu+"mm",d:cu});
+ if(!sizes.length){alert("Marcá al menos un tamaño de strass.");return}
+ sizes.sort((a,b)=>b.d-a.d);
+ const iw=img.naturalWidth||1000,ih=img.naturalHeight||1000,hMm=wMm*ih/iw,ppm=Math.min(8,1800/Math.max(wMm,hMm));
+ const cw=Math.round(wMm*ppm),ch=Math.round(hMm*ppm),cv=document.createElement("canvas");cv.width=cw;cv.height=ch;
+ const cx=cv.getContext("2d",{willReadFrequently:true});cx.drawImage(img,0,0,cw,ch);const px=cx.getImageData(0,0,cw,ch).data;
+ // fondo
+ let bg=null;if($("rmbg").checked){const cs=[0,(cw-1)*4,(ch-1)*cw*4,((ch-1)*cw+cw-1)*4].map(o=>px.slice(o,o+4));
+  if(cs.every(c=>c[3]>200&&Math.hypot(c[0]-cs[0][0],c[1]-cs[0][1],c[2]-cs[0][2])<30))bg=cs[0]}
+ const N=cw*ch,ink=[];for(let i=0;i<N;i++){const o=i*4;if(px[o+3]<128)continue;if(bg&&Math.hypot(px[o]-bg[0],px[o+1]-bg[1],px[o+2]-bg[2])<70)continue;ink.push(i)}
+ if(!ink.length){alert("No encontré diseño. Probá destildar «Ignorar el fondo».");return}
+ const st=Math.max(1,Math.floor(ink.length/12000)),samp=[];for(let j=0;j<ink.length;j+=st){const o=ink[j]*4;samp.push([px[o],px[o+1],px[o+2]])}
+ let cen=k==1?[samp.reduce((a,p)=>[a[0]+p[0]/samp.length,a[1]+p[1]/samp.length,a[2]+p[2]/samp.length],[0,0,0])]:kmeans(samp,Math.min(k,samp.length));
+ const lab=new Uint8Array(N).fill(255),cnt=cen.map(()=>0);
+ for(const i of ink){const o=i*4;let bi=0,bd=1e9;for(let c=0;c<cen.length;c++){const d=(px[o]-cen[c][0])**2+(px[o+1]-cen[c][1])**2+(px[o+2]-cen[c][2])**2;if(d<bd){bd=d;bi=c}}lab[i]=bi;cnt[bi]++}
+ const order=cen.map((_,i)=>i).filter(i=>cnt[i]>0).sort((a,b)=>cnt[b]-cnt[a]);
+ const hex=c=>"#"+c.map(v=>Math.round(v).toString(16).padStart(2,"0")).join("");
+ // hash espacial compartido
+ const dtc={};
+ const runPack=sizes=>{
+ const cell=2*sizes[0].d*ppm+gap*ppm+1,H=new Map(),key=(a,b)=>a*100003+b;
+ const free=(x,y,r,e=.01)=>{const a=Math.floor(x/cell),b=Math.floor(y/cell);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const l=H.get(key(a+i,b+j));if(l)for(const c of l)if(Math.hypot(c[0]-x,c[1]-y)<r+c[2]+gap*ppm-e)return false}return true};
+ const add=(x,y,r)=>{const k2=key(Math.floor(x/cell),Math.floor(y/cell));(H.get(k2)||H.set(k2,[]).get(k2)).push([x,y,r])};
+ const layers=[];
+ order.forEach((c,ci)=>{
+  let dt=dtc[ci];if(!dt){dt=dtc[ci]=new Float32Array(N);const IN=1e6;for(let i=0;i<N;i++)dt[i]=lab[i]==c?IN:0;
+  for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=y*cw+x;if(!dt[i])continue;const L=x?dt[i-1]:0,T=y?dt[i-cw]:0,TL=x&&y?dt[i-cw-1]:0,TR=y&&x<cw-1?dt[i-cw+1]:0;dt[i]=Math.min(L+1,T+1,TL+1.414,TR+1.414)}
+  for(let y=ch-1;y>=0;y--)for(let x=cw-1;x>=0;x--){const i=y*cw+x;if(!dt[i])continue;const R=x<cw-1?dt[i+1]:0,B=y<ch-1?dt[i+cw]:0,BR=x<cw-1&&y<ch-1?dt[i+cw+1]:0,BL=x&&y<ch-1?dt[i+cw-1]:0;dt[i]=Math.min(dt[i],R+1,B+1,BR+1.414,BL+1.414)}}
+  const res=sizes.map(s=>({s,pts:[]}));
+  const put=(q,x,y)=>{add(x,y,q.s.d/2*ppm);q.pts.push([f3(x/ppm),f3(y/ppm)])};
+  const ringsF=(q,nr=rings)=>{const r=q.s.d/2*ppm,p=2*r+gap*ppm,e=Math.max(.01,gap*ppm*.5);
+   for(let kk=0;kk<nr;kk++){const cs=contours(dt,cw,ch,r*(1-tol)+0.5+kk*p);if(!cs.length)break;for(const lp of cs){const sm=smooth(lp,Math.max(2,Math.round(r/2))),n0=sm.length,cl=[0];let L=0;
+    for(let i=1;i<=n0;i++){L+=Math.hypot(sm[i%n0][0]-sm[i-1][0],sm[i%n0][1]-sm[i-1][1]);cl.push(L)}
+    const n=Math.floor(L/p);if(n<1)continue;const sp=L/n;let j=0;
+    for(let t=0;t<n;t++){const d=t*sp;while(j<n0-1&&cl[j+1]<d)j++;const a=sm[j%n0],b=sm[(j+1)%n0],u=(d-cl[j])/((cl[j+1]-cl[j])||1);
+     const x=a[0]+(b[0]-a[0])*u,y=a[1]+(b[1]-a[1])*u;if(free(x,y,r,e))put(q,x,y)}}}};
+   const fillF=q=>{const r=q.s.d/2*ppm,st=Math.max(1,r/3);
+   for(let y=r;y<ch;y+=st)for(let x=r;x<cw;x+=st){const ix=Math.round(x),iy=Math.round(y);if(ix>=cw||iy>=ch)continue;
+    if(dt[iy*cw+ix]>=r*(1-tol)+0.5&&free(x,y,r))put(q,x,y)}};
+   const gridF=q=>{const r=q.s.d/2*ppm,p=2*r+gap*ppm,sq=$("sq").checked,dy=sq?p:p*.866,lv=r*(1-tol)+.5,K=8;let best=null;
+   const scan=(ox,oy,commit)=>{let n=0,row=0;for(let y=oy;y<ch;y+=dy,row++)for(let x=ox+(!sq&&row%2?p/2:0);x<cw;x+=p){const ix=Math.round(x),iy=Math.round(y);if(ix>=cw||iy>=ch)continue;if(dt[iy*cw+ix]>=lv&&free(x,y,r)){n++;if(commit)put(q,x,y)}}return n};
+   for(let a=0;a<K;a++)for(let b=0;b<K;b++){const ox=p*a/K,oy=dy*b/K,n=scan(ox,oy,false);if(!best||n>best.n)best={n,ox,oy}}
+   scan(best.ox,best.oy,true)};
+   const mode=$("ord").value,asc=[...res].reverse();
+   if(mode=="grid"){gridF(res[0]);for(const q of res)fillF(q)}
+   else if(mode=="rows"){for(const q of res)ringsF(q,60);for(const q of res)fillF(q)}
+   else if(mode=="big")for(const q of res){ringsF(q);fillF(q)}
+   else if(mode=="small")for(const q of asc){ringsF(q);fillF(q)}
+   else{ringsF(asc[0]);for(const q of res)fillF(q)}
+  for(const q of res)if(q.pts.length)layers.push({ci:ci,hex:hex(cen[c]),n:q.s.n,d:q.s.d,pts:q.pts,on:true})
+ });
+ return layers};
+ const outlineRun=()=>{const s=sizes[0],r=s.d/2*ppm,p=2*r+Math.max(0,+$("ogap").value||0)*ppm,pos=$("opos").value,dm=Math.max(0,+$("odist").value||0)*ppm,nr=Math.max(1,Math.min(5,+$("orows").value||1)),sg=pos=="in"?-1:1,base=pos=="in"?-(r+dm):pos=="out"?r+dm+1:0,cell=p+2*r+1,H=new Map(),kf=(a,b)=>a*100003+b,outL=[];
+  const ok=(x,y)=>{const a=Math.floor(x/cell),b=Math.floor(y/cell);for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const l=H.get(kf(a+i,b+j));if(l)for(const q of l)if(Math.hypot(q[0]-x,q[1]-y)<2*r+gap*ppm*.5)return false}return true};
+  order.forEach((c,ci)=>{const m=new Uint8Array(N),inv=new Uint8Array(N);for(let i=0;i<N;i++){m[i]=lab[i]==c?1:0;inv[i]=1-m[i]}
+   const dA=chamfer(m,cw,ch,0),dB=chamfer(inv,cw,ch,1e6),sd=new Float32Array(N),pts=[];for(let i=0;i<N;i++)sd[i]=m[i]?dA[i]:-dB[i];
+   for(let k=0;k<nr;k++)for(const lp of contours(sd,cw,ch,-(base+sg*k*p)+0.5)){
+    const sm=smooth(lp,Math.max(2,Math.round(r/2))),n0=sm.length,cl=[0];let T=0;
+    for(let i=1;i<=n0;i++){T+=Math.hypot(sm[i%n0][0]-sm[i-1][0],sm[i%n0][1]-sm[i-1][1]);cl.push(T)}
+    const n=Math.floor(T/p);if(n<1)continue;const sp=T/n;let j=0;
+    for(let t=0;t<n;t++){const d=t*sp;while(j<n0-1&&cl[j+1]<d)j++;const A=sm[j%n0],B=sm[(j+1)%n0],u=(d-cl[j])/((cl[j+1]-cl[j])||1),x=A[0]+(B[0]-A[0])*u,y=A[1]+(B[1]-A[1])*u;
+     if(ok(x,y)){const kk=kf(Math.floor(x/cell),Math.floor(y/cell));if(!H.has(kk))H.set(kk,[]);H.get(kk).push([x,y]);pts.push([f3(x/ppm),f3(y/ppm)])}}}
+   if(pts.length)outL.push({ci,hex:hex(cen[c]),n:s.n,d:s.d,pts,on:true})});
+  return outL};
+ const inkM=new Uint8Array(N);for(const i of ink)inkM[i]=1;
+ const cover=ls=>{const cv2=new Uint8Array(N);let n=0;for(const l of ls){const r=l.d/2*ppm;for(const p of l.pts){const x0=p[0]*ppm,y0=p[1]*ppm;for(let y=Math.max(0,Math.floor(y0-r));y<=Math.min(ch-1,Math.ceil(y0+r));y++)for(let x=Math.max(0,Math.floor(x0-r));x<=Math.min(cw-1,Math.ceil(x0+r));x++){const i=y*cw+x;if(inkM[i]&&!cv2[i]&&(x-x0)**2+(y-y0)**2<=r*r){cv2[i]=1;n++}}}}return n/ink.length};
+ let layers,note;
+ if($("kind").value=="outline"){layers=outlineRun();note=`contorno · ${layers.reduce((s,l)=>s+l.pts.length,0)} strass`}
+ else if($("reco").checked&&sizes.length>1){const m=sizes.length,subs=[];
+  for(let a=0;a<m;a++){subs.push([a]);for(let b=a+1;b<m;b++){subs.push([a,b]);if(m<=4)for(let c3=b+1;c3<m;c3++)subs.push([a,b,c3])}}
+  const rs=subs.map(ix=>{const L=runPack(ix.map(i=>sizes[i]));return{ix,L,cov:cover(L),n:L.reduce((s,l)=>s+l.pts.length,0)}});
+  const top=Math.max(...rs.map(r=>r.cov)),pick=rs.filter(r=>r.cov>=top-0.02).sort((a,b)=>a.ix.length-b.ix.length||a.n-b.n)[0];
+  layers=pick.L;note=`Recomendado: ${pick.ix.map(i=>sizes[i].n).join(" + ")} · cubre ${Math.round(pick.cov*100)} %`}
+ else{layers=runPack(sizes);note=`cubre ${Math.round(cover(layers)*100)} %`}
+ D={w:wMm,h:hMm,layers,ncol:order.length,note};render();
+}
+
+function contours(dt,cw,ch,lv){const N=cw*ch,vis=new Uint8Array(N),out=[],D8=[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]];
+ const inE=(x,y)=>x>=0&&y>=0&&x<cw&&y<ch&&dt[y*cw+x]>=lv;
+ for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=y*cw+x;if(vis[i]||dt[i]<lv)continue;
+  let bd=-1;for(let d=0;d<8;d+=2)if(!inE(x+D8[d][0],y+D8[d][1])){bd=d;break}
+  if(bd<0)continue;const lp=[];let cx=x,cy=y,first=null,steps=0;
+  for(;;){let nx=0,ny=0,found=false,pd=0;
+   for(let k=1;k<=8;k++){const d=(bd+k)%8,tx=cx+D8[d][0],ty=cy+D8[d][1];if(inE(tx,ty)){nx=tx;ny=ty;found=true;pd=(bd+k-1)%8;break}}
+   if(!found){if(!lp.length){lp.push([cx,cy]);vis[cy*cw+cx]=1}break}
+   if(steps>0&&cx==x&&cy==y&&nx==first[0]&&ny==first[1])break;
+   lp.push([cx,cy]);vis[cy*cw+cx]=1;if(!first)first=[nx,ny];
+   const qx=cx+D8[pd][0]-nx,qy=cy+D8[pd][1]-ny;bd=D8.findIndex(v=>v[0]==qx&&v[1]==qy);
+   cx=nx;cy=ny;if(++steps>400000||bd<0)break}
+  out.push(lp)}
+ return out}
+function smooth(lp,w){const n=lp.length;if(n<2*w+2)return lp;const o=[];let sx=0,sy=0;for(let k=-w;k<=w;k++){const q=lp[(k+n)%n];sx+=q[0];sy+=q[1]}const m=2*w+1;
+ for(let i=0;i<n;i++){o.push([sx/m,sy/m]);const a=lp[(i-w+n)%n],b=lp[(i+w+1)%n];sx+=b[0]-a[0];sy+=b[1]-a[1]}return o}
+function chamfer(m,cw,ch,bo){const N=cw*ch,d=new Float32Array(N);for(let i=0;i<N;i++)d[i]=m[i]?1e6:0;
+ for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=y*cw+x;if(!d[i])continue;const L=x?d[i-1]:bo,T=y?d[i-cw]:bo,TL=x&&y?d[i-cw-1]:bo,TR=y&&x<cw-1?d[i-cw+1]:bo;d[i]=Math.min(L+1,T+1,TL+1.414,TR+1.414)}
+ for(let y=ch-1;y>=0;y--)for(let x=cw-1;x>=0;x--){const i=y*cw+x;if(!d[i])continue;const R=x<cw-1?d[i+1]:bo,Bt=y<ch-1?d[i+cw]:bo,BR=x<cw-1&&y<ch-1?d[i+cw+1]:bo,BL=x&&y<ch-1?d[i+cw-1]:bo;d[i]=Math.min(d[i],R+1,Bt+1,BR+1.414,BL+1.414)}
+ return d}
+function pathOf(L){const r=L.d/2,q=f3(2*r);return L.pts.map(p=>`M${f3(p[0]-r)} ${p[1]}a${r} ${r} 0 1 0 ${q} 0a${r} ${r} 0 1 0 -${q} 0`).join("")}
+function regPaths(){const o=6,c=3,W=D.w,Hh=D.h;return [[-o,-o],[W+o,-o],[-o,Hh+o],[W+o,Hh+o]].map(([x,y])=>`M${x-c} ${y}H${x+c}M${x} ${y-c}V${y+c}`).join("")}
+function render(){
+ if(!D)return;const vb=`${-M} ${-M} ${f3(D.w+2*M)} ${f3(D.h+2*M)}`;
+ $("stage").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" style="background:${$("bgc").value};aspect-ratio:${D.w+2*M}/${D.h+2*M};width:min(100%,${Math.round((D.w+2*M)*5)}px)">${$("showimg").checked?`<image href="${imgURL}" x="0" y="0" width="${D.w}" height="${f3(D.h)}" opacity=".3" preserveAspectRatio="none"/>`:""}
+ <rect x="0" y="0" width="${D.w}" height="${f3(D.h)}" fill="none" stroke="#8aa" stroke-width=".2" stroke-dasharray="2 2"/>
+ ${D.layers.filter(l=>l.on).map(l=>`<path d="${pathOf(l)}" fill="${$("stOrig").checked?l.hex:$("stc").value}" fill-opacity=".85" stroke="#000" stroke-width=".12"/>`).join("")}
+ <path d="${regPaths()}" stroke="#d00" stroke-width=".3" fill="none"/></svg>`;
+ let h="",tot=0;for(let c=0;c<D.ncol;c++){const ls=D.layers.filter(l=>l.ci==c);if(!ls.length)continue;h+=`<div class="grp"><span class="sw" style="background:${ls[0].hex}"></span>Color ${c+1}</div>`;
+  ls.forEach(l=>{tot+=l.on?l.pts.length:0;h+=`<label class="ly"><input type="checkbox" data-i="${D.layers.indexOf(l)}" ${l.on?"checked":""}>${l.n} · ${l.d} mm<b>${l.pts.length}</b></label>`})}
+ $("layers").innerHTML=h||'<p class="s">No entró ningún strass. Probá un tamaño más chico o más tolerancia de borde.</p>';
+ $("layers").querySelectorAll("input").forEach(i=>i.onchange=()=>{D.layers[+i.dataset.i].on=i.checked;render()});
+ $("info").textContent=`${tot} strass en capas visibles · diseño de ${D.w} × ${f3(D.h)} mm`+(D.note?" · "+D.note:"");
+ $("xsvg").disabled=$("xpdf").disabled=!D.layers.length;
+}
+$("showimg").onchange=render;$("bgc").oninput=render;$("stOrig").onchange=render;$("stc").oninput=()=>{$("stOrig").checked=false;render()};
+$("kind").onchange=()=>{$("oopts").style.display=$("kind").value=="outline"?"block":"none"};
+
+async function save(name,data){const dl=window.claude?await claude.use("downloads"):null;
+ if(!dl){$("xnote").textContent="Este navegador no permite guardar desde acá. Abrí la app desde el archivo descargado.";return}
+ try{await dl.save({filename:name,data})}catch(e){if(e.code!="declined")$("xnote").textContent="No se pudo guardar: "+(e.message||e.code)}}
+
+$("xsvg").onclick=()=>{const ls=D.layers.filter(l=>l.on);const W=f3(D.w+2*M),Hh=f3(D.h+2*M);
+ const g=ls.map((l,i)=>`<g id="capa-${i+1}" inkscape:groupmode="layer" inkscape:label="${l.n} - Color ${l.ci+1}" fill="none" stroke="#000000" stroke-width="0.1"><path d="${pathOf(l)}"/></g>`).join("\n");
+ save("moldes-strass.svg",`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="${W}mm" height="${Hh}mm" viewBox="${-M} ${-M} ${W} ${Hh}">\n${g}\n<g id="marcas" inkscape:groupmode="layer" inkscape:label="Marcas de registro" fill="none" stroke="#000000" stroke-width="0.1"><path d="${regPaths()}"/></g>\n</svg>`)};
+
+function circ(x,y,r){const k=0.5523*r;return `${f3(x+r)} ${f3(y)} m ${f3(x+r)} ${f3(y+k)} ${f3(x+k)} ${f3(y+r)} ${f3(x)} ${f3(y+r)} c ${f3(x-k)} ${f3(y+r)} ${f3(x-r)} ${f3(y+k)} ${f3(x-r)} ${f3(y)} c ${f3(x-r)} ${f3(y-k)} ${f3(x-k)} ${f3(y-r)} ${f3(x)} ${f3(y-r)} c ${f3(x+k)} ${f3(y-r)} ${f3(x+r)} ${f3(y-k)} ${f3(x+r)} ${f3(y)} c\n`}
+$("xpdf").onclick=()=>{const ls=D.layers.filter(l=>l.on),mm=72/25.4,pw=(D.w+2*M)*mm,ph=(D.h+2*M)*mm;
+ const groups=$("pg").value=="color"?[...new Set(ls.map(l=>l.ci))].map(c=>ls.filter(l=>l.ci==c)):ls.map(l=>[l]);
+ const P=(x,y)=>[(x+M)*mm,ph-(y+M)*mm];
+ const pages=groups.map(gr=>{let o="0.283 w 0 0 0 RG\n";
+  for(const l of gr)for(const p of l.pts){const [a,b]=P(p[0],p[1]);o+=circ(a,b,l.d/2*mm)}
+  const c=3,off=6,W=D.w,Hh=D.h;for(const [x,y] of [[-off,-off],[W+off,-off],[-off,Hh+off],[W+off,Hh+off]]){const [a,b]=P(x,y);o+=`${f3(a-c*mm)} ${f3(b)} m ${f3(a+c*mm)} ${f3(b)} l ${f3(a)} ${f3(b-c*mm)} m ${f3(a)} ${f3(b+c*mm)} l\n`}
+  return {w:pw,h:ph,ops:o+"S"}});
+ let out="%PDF-1.4\n",ob=[],of=[];ob[1]="<< /Type /Catalog /Pages 2 0 R >>";const kids=[];
+ pages.forEach((p,i)=>{const a=3+i*2;kids.push(a+" 0 R");ob[a]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${p.w.toFixed(2)} ${p.h.toFixed(2)}] /Contents ${a+1} 0 R /Resources << >> >>`;ob[a+1]=`<< /Length ${p.ops.length} >>\nstream\n${p.ops}\nendstream`});
+ ob[2]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;
+ for(let i=1;i<ob.length;i++){of[i]=out.length;out+=`${i} 0 obj\n${ob[i]}\nendobj\n`}
+ const x=out.length;out+=`xref\n0 ${ob.length}\n0000000000 65535 f \n`;for(let i=1;i<ob.length;i++)out+=String(of[i]).padStart(10,"0")+" 00000 n \n";
+ out+=`trailer\n<< /Size ${ob.length} /Root 1 0 R >>\nstartxref\n${x}\n%%EOF`;
+ save("moldes-strass.pdf",new Blob([out],{type:"application/pdf"}))};
+</script>
+</body>
+</html>

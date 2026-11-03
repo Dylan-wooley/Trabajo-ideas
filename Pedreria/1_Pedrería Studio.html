@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pedrería Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --surface2: #1e1e1e;
+  --surface3: #282828;
+  --border: #2a2a2a;
+  --text: #e4e4e4;
+  --muted: #777;
+  --accent: #b97cfc;
+  --accent-glow: rgba(185,124,252,0.18);
+  --accent-dark: rgba(185,124,252,0.08);
+  --green: #4ade80;
+  --r: 8px;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:300px 1fr;height:100vh}
+
+/* PANEL */
+.panel{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding:0}
+.panel::-webkit-scrollbar{width:4px}
+.panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.panel-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:5}
+.panel-logo{display:flex;align-items:center;gap:8px}
+.panel-logo-icon{font-size:22px}
+.panel-logo-text{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--accent);letter-spacing:-0.5px}
+
+.panel-inner{padding:10px 12px;display:flex;flex-direction:column;gap:8px;flex:1}
+
+/* SECTIONS */
+.sec{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.sec-head{display:flex;align-items:center;gap:7px;padding:8px 11px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.sec-num{width:20px;height:20px;border-radius:5px;background:var(--accent-dark);color:var(--accent);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;flex-shrink:0}
+.sec-title{font-size:10px;font-weight:600;letter-spacing:0.07em;color:var(--muted);flex:1}
+.sec-body{padding:11px;display:flex;flex-direction:column;gap:9px}
+
+/* LABELS & INPUTS */
+.lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:0.05em;margin-bottom:4px;display:block}
+.row{display:flex;gap:7px;align-items:flex-end}
+.col{flex:1;display:flex;flex-direction:column}
+input[type=number],input[type=text]{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:6px;font-size:13px;font-family:'Space Mono',monospace;outline:none;transition:border-color .15s}
+input[type=number]:focus,input[type=text]:focus{border-color:var(--accent)}
+
+/* TOGGLE GROUP */
+.tgl-group{display:flex;gap:4px;flex-wrap:wrap}
+.tgl{flex:1;padding:6px 4px;border:1px solid var(--border);background:var(--bg);color:var(--muted);border-radius:6px;cursor:pointer;font-size:10px;font-weight:700;text-align:center;transition:all .15s;font-family:'Inter',sans-serif;letter-spacing:0.03em;white-space:nowrap;min-width:0}
+.tgl:hover{border-color:var(--accent);color:var(--text)}
+.tgl.on{background:var(--accent-dark);border-color:var(--accent);color:var(--accent)}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;border:none;transition:all .15s;font-family:'Inter',sans-serif;letter-spacing:0.03em}
+.btn .material-icons-round{font-size:14px}
+.btn-ghost{background:var(--bg);border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-accent{background:var(--accent);color:#080808}
+.btn-accent:hover{filter:brightness(1.1)}
+.btn-row{display:flex;gap:6px}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:18px 12px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted)}
+.upload-zone:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dark)}
+.upload-zone .material-icons-round{font-size:26px;display:block;margin-bottom:5px}
+.upload-zone-title{font-size:11px;font-weight:700}
+.upload-zone-sub{font-size:10px;margin-top:2px;opacity:.7}
+
+/* RANGE */
+.range-row{display:flex;align-items:center;gap:8px}
+input[type=range]{flex:1;accent-color:var(--accent);cursor:pointer}
+.range-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);min-width:44px;text-align:right}
+
+/* COST GRID */
+.cost-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.cost-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px}
+.cost-card.wide{grid-column:span 2}
+.cost-lbl{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:0.06em;margin-bottom:3px}
+.cost-val{font-size:22px;font-weight:700;font-family:'Space Mono',monospace;color:var(--accent);line-height:1}
+.cost-sub{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* COLOR PICKER */
+input[type=color]{width:34px;height:28px;border:1px solid var(--border);border-radius:5px;padding:2px;background:var(--bg);cursor:pointer}
+
+/* CANVAS AREA */
+.workspace{display:flex;flex-direction:column;background:#111;position:relative;overflow:hidden}
+.ws-toolbar{display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+.ws-info{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;flex:1}
+.ws-zoom-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:28px;height:28px;border-radius:5px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color .15s}
+.ws-zoom-btn:hover{border-color:var(--accent)}
+.canvas-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:24px}
+#c{display:block;border:1px solid #333;cursor:crosshair;transition:transform .2s}
+.ws-status{display:flex;align-items:center;gap:14px;padding:5px 12px;background:var(--surface);border-top:1px solid var(--border);font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;flex-shrink:0}
+.ws-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* PROCESSING OVERLAY */
+.overlay{position:absolute;inset:0;background:rgba(13,13,13,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:20;color:var(--accent)}
+.overlay.show{display:flex}
+.overlay-icon{font-size:36px;animation:spin 2s linear infinite}
+.overlay-text{font-size:13px;font-weight:600}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+/* Size badge */
+.size-badge{display:inline-block;background:var(--accent-dark);border:1px solid var(--border);border-radius:5px;padding:4px 9px;font-family:'Space Mono',monospace;font-size:12px;color:var(--text);text-align:center;width:100%}
+
+/* Stone color preview */
+.stone-preview{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);flex-shrink:0}
+
+@media(max-width:700px){
+  .app{grid-template-columns:1fr}
+  .workspace{display:none}
+}
+
+/* ── PREVIEW MODAL ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-backdrop.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:min(680px,100%);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.modal-header{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-size:14px;font-weight:700;color:var(--text);flex:1}
+.modal-close{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.modal-close:hover{border-color:var(--accent);color:var(--accent)}
+.modal-body{display:grid;grid-template-columns:1fr 220px;flex:1;overflow:hidden;min-height:0}
+.modal-preview{background:#111;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;position:relative}
+.modal-preview img{max-width:100%;max-height:100%;object-fit:contain;border:1px solid #333;border-radius:4px;display:block}
+.modal-preview-empty{color:var(--muted);font-size:12px;text-align:center}
+.modal-preview-empty .material-icons-round{font-size:40px;display:block;margin-bottom:8px;opacity:.4}
+.modal-sidebar{border-left:1px solid var(--border);display:flex;flex-direction:column;gap:0;overflow-y:auto;flex-shrink:0}
+.modal-sidebar::-webkit-scrollbar{width:4px}
+.modal-sidebar::-webkit-scrollbar-thumb{background:var(--border)}
+.modal-info-block{padding:14px 16px;border-bottom:1px solid var(--border)}
+.modal-info-title{font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.modal-info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.modal-info-row:last-child{margin-bottom:0}
+.modal-info-key{font-size:11px;color:var(--muted)}
+.modal-info-val{font-size:11px;font-weight:600;color:var(--text);font-family:'Space Mono',monospace}
+.modal-info-val.accent{color:var(--accent)}
+.modal-fmt-tabs{display:flex;border-bottom:1px solid var(--border)}
+.modal-fmt-tab{flex:1;padding:9px 6px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all .15s}
+.modal-fmt-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.modal-footer{display:flex;gap:8px;padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0}
+.modal-footer .btn{flex:1;padding:10px}
+.modal-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#111;flex-direction:column;gap:8px;color:var(--accent)}
+.modal-loading .material-icons-round{font-size:28px;animation:spin 1.5s linear infinite}
+.modal-loading span{font-size:12px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:9px 18px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;z-index:200;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast .material-icons-round{color:var(--accent);font-size:15px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ░░ LEFT PANEL ░░ -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-logo">
+        <span class="panel-logo-icon">💎</span>
+        <span class="panel-logo-text">PEDRERÍA STUDIO</span>
+      </div>
+    </div>
+    <div class="panel-inner">
+
+      <!-- 00 ÁREA -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-num">00</div>
+          <span class="sec-title">ÁREA DE TRABAJO</span>
+        </div>
+        <div class="sec-body">
+          <div class="row">
+            <div class="col"><span class="lbl">ANCHO (cm)</span><input type="number" id="cw" value="20" min="1" max="100" step="0.5"></div>
+            <div class="col"><span class="lbl">ALTO (cm)</span><input type="number" id="ch" value="20" min="1" max="100" step="0.5"></div>
+          </div>
+          <div class="size-badge" id="sizeBadge">20 × 20 cm</div>
+          <button class="btn btn-accent" onclick="initCanvas()" style="width:100%">
+            <span class="material-icons-round">crop_free</span>APLICAR MEDIDAS
+          </button>
+        </div>
+      </div>
+
+      <!-- 01 DISEÑO -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-num">01</div>
+          <span class="sec-title">DISEÑO</span>
+        </div>
+        <div class="sec-body">
+          <div class="upload-zone" onclick="document.getElementById('fileIn').click()">
+            <span class="material-icons-round">cloud_upload</span>
+            <div class="upload-zone-title">SUBIR IMAGEN</div>
+            <div class="upload-zone-sub">PNG · JPG · SVG · WebP</div>
+          </div>
+          <input type="file" id="fileIn" accept="image/*" style="display:none" onchange="loadImg(event)">
+          <div id="imgName" style="font-size:10px;color:var(--muted);text-align:center;display:none"></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="clearAll()" style="flex:1">
+              <span class="material-icons-round">delete_outline</span>LIMPIAR
+            </button>
+            <button class="btn btn-accent" onclick="applyStones()" style="flex:1">
+              <span class="material-icons-round">auto_awesome</span>APLICAR
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 CONFIGURACIÓN -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-num">02</div>
+          <span class="sec-title">CONFIGURACIÓN</span>
+        </div>
+        <div class="sec-body">
+          <div>
+            <span class="lbl">TAMAÑO PIEDRA (SS)</span>
+            <div class="tgl-group" id="ssGroup">
+              <button class="tgl" onclick="pickSS(this,2)">SS6</button>
+              <button class="tgl on" onclick="pickSS(this,2.8)">SS10</button>
+              <button class="tgl" onclick="pickSS(this,4)">SS16</button>
+              <button class="tgl" onclick="pickSS(this,4.8)">SS20</button>
+            </div>
+          </div>
+          <div class="col">
+            <span class="lbl">MANUAL (mm)</span>
+            <input type="number" id="manualMM" placeholder="ej: 3.2" min="0.5" max="20" step="0.1"
+              oninput="if(this.value){stoneMM=parseFloat(this.value)||stoneMM;document.querySelectorAll('#ssGroup .tgl').forEach(b=>b.classList.remove('on'))}">
+          </div>
+          <div>
+            <span class="lbl">TIPO DE RELLENO</span>
+            <div class="tgl-group" id="fillGroup">
+              <button class="tgl on" onclick="pickFill(this,'linear')">LINEAL</button>
+              <button class="tgl" onclick="pickFill(this,'hex')">HEXAGONAL</button>
+              <button class="tgl" onclick="pickFill(this,'contour')">CONTORNO</button>
+            </div>
+          </div>
+          <div>
+            <span class="lbl">ESPACIO ENTRE PIEDRAS</span>
+            <div class="range-row">
+              <input type="range" id="spaceR" min="0" max="3" step="0.1" value="0.5"
+                oninput="spacing=+this.value;document.getElementById('spaceV').textContent=spacing.toFixed(1)+' mm'">
+              <span class="range-val" id="spaceV">0.5 mm</span>
+            </div>
+          </div>
+          <div>
+            <span class="lbl">UMBRAL DE DETECCIÓN</span>
+            <div class="range-row">
+              <input type="range" id="thrR" min="1" max="254" step="1" value="128"
+                oninput="threshold=+this.value;document.getElementById('thrV').textContent=this.value">
+              <span class="range-val" id="thrV">128</span>
+            </div>
+          </div>
+          <div>
+            <span class="lbl">COLOR DE PIEDRA</span>
+            <div class="range-row">
+              <div class="stone-preview" id="stonePreview" style="background:radial-gradient(circle at 35% 35%,#fff,#c084fc,#6600aa)"></div>
+              <input type="color" id="stoneColorPick" value="#c084fc" oninput="setStoneColor(this.value)">
+              <div class="tgl-group" style="flex:1">
+                <button class="tgl on" onclick="setStoneColor('#c084fc');document.getElementById('stoneColorPick').value='#c084fc'" style="font-size:9px">VIOLA</button>
+                <button class="tgl" onclick="setStoneColor('#f0e68c');document.getElementById('stoneColorPick').value='#f0e68c'" style="font-size:9px">ORO</button>
+                <button class="tgl" onclick="setStoneColor('#e8e8e8');document.getElementById('stoneColorPick').value='#e8e8e8'" style="font-size:9px">PLATA</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 FONDO -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-num">03</div>
+          <span class="sec-title">FONDO</span>
+        </div>
+        <div class="sec-body">
+          <div class="tgl-group" id="bgGroup">
+            <button class="tgl on" onclick="pickBg(this,'white')">BLANCO</button>
+            <button class="tgl" onclick="pickBg(this,'black')">NEGRO</button>
+            <button class="tgl" onclick="pickBg(this,'trans')">TRANS.</button>
+            <button class="tgl" onclick="pickBg(this,'custom')">COLOR</button>
+          </div>
+          <div id="bgCustomRow" style="display:none">
+            <div class="range-row">
+              <span class="lbl" style="margin:0">COLOR:</span>
+              <input type="color" id="bgColorPick" value="#1a1a2e" oninput="bgCustom=this.value;draw()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 COSTOS -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-num">04</div>
+          <span class="sec-title">COSTOS</span>
+        </div>
+        <div class="sec-body">
+          <div class="row">
+            <div class="col"><span class="lbl">PZAS / BOLSA</span><input type="number" id="pzas" value="144" min="1" oninput="calcCosts()"></div>
+            <div class="col"><span class="lbl">PRECIO $ / BOLSA</span><input type="number" id="precio" value="25" min="0" step="0.5" oninput="calcCosts()"></div>
+          </div>
+          <div class="cost-grid">
+            <div class="cost-card">
+              <div class="cost-lbl">PIEDRAS</div>
+              <div class="cost-val" id="cStones">0</div>
+              <div class="cost-sub">unidades</div>
+            </div>
+            <div class="cost-card">
+              <div class="cost-lbl">BOLSAS</div>
+              <div class="cost-val" id="cBags">0</div>
+              <div class="cost-sub">bolsas</div>
+            </div>
+            <div class="cost-card wide">
+              <div class="cost-lbl">COSTO ESTIMADO</div>
+              <div class="cost-val" id="cCost">$0.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 EXPORTAR -->
+      <div class="sec">
+        <div class="sec-head">
+          <div class="sec-num">05</div>
+          <span class="sec-title">EXPORTAR</span>
+        </div>
+        <div class="sec-body">
+          <button class="btn btn-accent" onclick="openPreview('svg')" style="width:100%">
+            <span class="material-icons-round">preview</span>VISTA PREVIA SVG
+          </button>
+          <button class="btn btn-ghost" onclick="openPreview('png')" style="width:100%">
+            <span class="material-icons-round">preview</span>VISTA PREVIA PNG
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /panel-inner -->
+  </div><!-- /panel -->
+
+  <!-- ░░ WORKSPACE ░░ -->
+  <div class="workspace">
+    <div class="ws-toolbar">
+      <span class="material-icons-round" style="color:var(--accent);font-size:18px">diamond</span>
+      <span class="ws-info" id="wsInfo">20 × 20 cm · SS10 (2.8 mm) · LINEAL</span>
+      <button class="ws-zoom-btn" onclick="zOut()">−</button>
+      <button class="ws-zoom-btn" onclick="zReset()">↺</button>
+      <button class="ws-zoom-btn" onclick="zIn()">+</button>
+    </div>
+
+    <div class="canvas-wrap" id="wrap">
+      <canvas id="c"></canvas>
+    </div>
+
+    <div class="ws-status">
+      <div class="ws-dot"></div>
+      <span id="stStones">Piedras: 0</span>
+      <span id="stSize">Lienzo: 20×20 cm</span>
+      <span id="stZoom">Zoom: 100%</span>
+      <span style="margin-left:auto;opacity:.4">Pedrería Studio v1.0</span>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <span class="material-icons-round overlay-icon">auto_awesome</span>
+      <span class="overlay-text" id="overlayTxt">Calculando pedrería…</span>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ PREVIEW MODAL ░░ -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closePreview()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="material-icons-round" style="color:var(--accent);font-size:18px">diamond</span>
+      <span class="modal-title" id="modalTitle">Vista previa — SVG</span>
+      <button class="modal-close" onclick="closePreview()">
+        <span class="material-icons-round">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Left: image preview -->
+      <div class="modal-preview" id="modalPreviewArea">
+        <div class="modal-loading" id="modalLoading">
+          <span class="material-icons-round">auto_awesome</span>
+          <span>Generando vista previa…</span>
+        </div>
+        <img id="modalPreviewImg" style="display:none" alt="Vista previa">
+      </div>
+
+      <!-- Right: info sidebar -->
+      <div class="modal-sidebar">
+        <!-- Format tabs -->
+        <div class="modal-fmt-tabs">
+          <div class="modal-fmt-tab active" id="tabSVG" onclick="switchFmt('svg')">SVG</div>
+          <div class="modal-fmt-tab" id="tabPNG" onclick="switchFmt('png')">PNG</div>
+        </div>
+
+        <!-- Dimensions -->
+        <div class="modal-info-block">
+          <div class="modal-info-title">DIMENSIONES</div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Ancho</span>
+            <span class="modal-info-val" id="infoW">—</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Alto</span>
+            <span class="modal-info-val" id="infoH">—</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Píxeles</span>
+            <span class="modal-info-val" id="infoPx">—</span>
+          </div>
+        </div>
+
+        <!-- Stones -->
+        <div class="modal-info-block">
+          <div class="modal-info-title">PEDRERÍA</div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Piedras</span>
+            <span class="modal-info-val accent" id="infoStones">0</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Tamaño</span>
+            <span class="modal-info-val" id="infoSS">—</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Relleno</span>
+            <span class="modal-info-val" id="infoFill">—</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Espacio</span>
+            <span class="modal-info-val" id="infoSpacing">—</span>
+          </div>
+        </div>
+
+        <!-- File -->
+        <div class="modal-info-block">
+          <div class="modal-info-title">ARCHIVO</div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Formato</span>
+            <span class="modal-info-val accent" id="infoFmt">—</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Nombre</span>
+            <span class="modal-info-val" id="infoFilename">—</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Tamaño est.</span>
+            <span class="modal-info-val" id="infoSize">—</span>
+          </div>
+        </div>
+
+        <!-- Cost summary -->
+        <div class="modal-info-block">
+          <div class="modal-info-title">RESUMEN COSTO</div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Bolsas</span>
+            <span class="modal-info-val" id="infoBags">0</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-info-key">Costo</span>
+            <span class="modal-info-val accent" id="infoCost">$0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closePreview()">
+        <span class="material-icons-round">close</span>CANCELAR
+      </button>
+      <button class="btn btn-accent" id="modalDownloadBtn" onclick="confirmDownload()">
+        <span class="material-icons-round">download</span>DESCARGAR
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── STATE ── */
+const PX = 37.8; // pixels per cm at 96dpi
+let wcm=20,hcm=20;
+let stoneMM=2.8, spacing=0.5, fillType='linear', threshold=128;
+let bgMode='white', bgCustom='#1a1a2e';
+let stoneColor='#c084fc';
+let stones=[];
+let userImg=null;
+let zm=1;
+const cv=document.getElementById('c');
+const cx=cv.getContext('2d');
+
+/* ── INIT ── */
+function initCanvas(){
+  wcm=parseFloat(document.getElementById('cw').value)||20;
+  hcm=parseFloat(document.getElementById('ch').value)||20;
+  cv.width=Math.round(wcm*PX);
+  cv.height=Math.round(hcm*PX);
+  document.getElementById('sizeBadge').textContent=`${wcm} × ${hcm} cm`;
+  document.getElementById('stSize').textContent=`Lienzo: ${wcm}×${hcm} cm`;
+  stones=[];
+  draw();
+  info();
+}
+
+/* ── DRAW ── */
+function draw(){
+  const w=cv.width,h=cv.height;
+
+  // Background
+  if(bgMode==='trans'){
+    cx.clearRect(0,0,w,h);
+    const sz=8;
+    for(let y=0;y<h;y+=sz) for(let x=0;x<w;x+=sz){
+      cx.fillStyle=((x/sz+y/sz)%2===0)?'#bbb':'#e8e8e8';
+      cx.fillRect(x,y,sz,sz);
+    }
+  } else {
+    cx.fillStyle=bgMode==='white'?'#ffffff':bgMode==='black'?'#000000':bgCustom;
+    cx.fillRect(0,0,w,h);
+  }
+
+  // Ghost image
+  if(userImg){
+    cx.save();
+    cx.globalAlpha=0.2;
+    cx.drawImage(userImg,0,0,w,h);
+    cx.restore();
+  }
+
+  // Stones
+  const r=(stoneMM/10*PX)/2;
+  for(const s of stones){
+    const g=cx.createRadialGradient(s.x-r*.35,s.y-r*.35,r*.08,s.x,s.y,r);
+    const hi=lighten(stoneColor,.7);
+    const mid=stoneColor;
+    const dark=darken(stoneColor,.4);
+    g.addColorStop(0,'#ffffff');
+    g.addColorStop(0.25,hi);
+    g.addColorStop(0.6,mid);
+    g.addColorStop(1,dark);
+    cx.beginPath();
+    cx.arc(s.x,s.y,r,0,Math.PI*2);
+    cx.fillStyle=g;
+    cx.fill();
+    // subtle outline
+    cx.strokeStyle='rgba(255,255,255,0.15)';
+    cx.lineWidth=0.4;
+    cx.stroke();
+  }
+
+  document.getElementById('stStones').textContent=`Piedras: ${stones.length.toLocaleString()}`;
+  calcCosts();
+}
+
+/* ── LOAD IMAGE ── */
+function loadImg(e){
+  const f=e.target.files[0];
+  if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      userImg=img;
+
+      // Auto-size canvas to match image proportions at 300 DPI (print standard)
+      // 1 cm = 300/2.54 ≈ 118.11 px @ 300dpi
+      const DPI=300;
+      const rawW=+(img.naturalWidth /DPI*2.54).toFixed(2);
+      const rawH=+(img.naturalHeight/DPI*2.54).toFixed(2);
+
+      document.getElementById('cw').value=rawW;
+      document.getElementById('ch').value=rawH;
+
+      // Reinit canvas with new size (this calls draw() internally)
+      initCanvas();
+
+      // Show filename + auto-detected size
+      const el=document.getElementById('imgName');
+      el.style.display='block';
+      el.innerHTML=`📄 ${f.name}<br><span style="color:var(--accent)">${img.naturalWidth}×${img.naturalHeight}px → ${rawW}×${rawH} cm (300 dpi)</span>`;
+
+      showToast(`Canvas ajustado a ${rawW} × ${rawH} cm`);
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(f);
+}
+
+/* ── APPLY STONES ── */
+async function applyStones(){
+  if(!userImg){alert('Por favor, sube una imagen primero.');return;}
+  showOverlay('Calculando pedrería…');
+  await sleep(30);
+
+  const w=cv.width,h=cv.height;
+  const off=document.createElement('canvas');
+  off.width=w;off.height=h;
+  const oc=off.getContext('2d');
+  oc.fillStyle='#ffffff';
+  oc.fillRect(0,0,w,h);
+  oc.drawImage(userImg,0,0,w,h);
+  const id=oc.getImageData(0,0,w,h).data;
+
+  const luma=(x,y)=>{
+    x=Math.round(x);y=Math.round(y);
+    if(x<0||x>=w||y<0||y>=h)return 255;
+    const i=(y*w+x)*4;
+    if(id[i+3]<15)return 255;
+    return .299*id[i]+.587*id[i+1]+.114*id[i+2];
+  };
+  const dark=(x,y)=>luma(x,y)<threshold;
+  const edge=(x,y)=>{
+    if(!dark(x,y))return false;
+    for(const[dx,dy]of[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]])
+      if(!dark(x+dx,y+dy))return true;
+    return false;
+  };
+
+  const sxPx=stoneMM/10*PX;
+  const spPx=spacing/10*PX;
+  const step=sxPx+spPx;
+  const r=sxPx/2;
+
+  stones=[];
+
+  if(fillType==='linear'){
+    for(let y=r;y<h-r;y+=step)
+      for(let x=r;x<w-r;x+=step)
+        if(dark(x,y)) stones.push({x,y});
+
+  }else if(fillType==='hex'){
+    const rowH=step*Math.sin(Math.PI/3);
+    let row=0;
+    for(let y=r;y<h-r;y+=rowH,row++)
+      for(let x=(row%2?step/2:0)+r;x<w-r;x+=step)
+        if(dark(x,y)) stones.push({x,y});
+
+  }else if(fillType==='contour'){
+    const visited=new Set();
+    const snap=step;
+    for(let y=0;y<h;y+=Math.max(1,Math.round(sxPx*.4)))
+      for(let x=0;x<w;x+=Math.max(1,Math.round(sxPx*.4)))
+        if(edge(x,y)){
+          const gx=Math.round(x/snap)*snap+r;
+          const gy=Math.round(y/snap)*snap+r;
+          const k=`${Math.round(gx*2)},${Math.round(gy*2)}`;
+          if(!visited.has(k)&&gx<w-r&&gy<h-r){
+            visited.add(k);
+            stones.push({x:gx,y:gy});
+          }
+        }
+  }
+
+  hideOverlay();
+  draw();
+  info();
+}
+
+/* ── CLEAR ── */
+function clearAll(){
+  userImg=null;
+  stones=[];
+  document.getElementById('fileIn').value='';
+  document.getElementById('imgName').style.display='none';
+  draw();calcCosts();info();
+}
+
+/* ── PICKERS ── */
+function pickSS(btn,mm){
+  stoneMM=mm;
+  document.getElementById('manualMM').value='';
+  document.querySelectorAll('#ssGroup .tgl').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  info();
+}
+function pickFill(btn,type){
+  fillType=type;
+  document.querySelectorAll('#fillGroup .tgl').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  info();
+}
+function pickBg(btn,mode){
+  bgMode=mode;
+  document.querySelectorAll('#bgGroup .tgl').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('bgCustomRow').style.display=mode==='custom'?'flex':'none';
+  draw();
+}
+function setStoneColor(col){
+  stoneColor=col;
+  const p=document.getElementById('stonePreview');
+  const hi=lighten(col,.6);
+  const dk=darken(col,.4);
+  p.style.background=`radial-gradient(circle at 35% 35%,#fff,${hi},${col},${dk})`;
+  document.querySelectorAll('#stoneColorRow .tgl').forEach(b=>b.classList.remove('on'));
+  if(stones.length) draw();
+}
+
+/* ── COSTS ── */
+function calcCosts(){
+  const t=stones.length;
+  const pz=parseInt(document.getElementById('pzas').value)||144;
+  const pr=parseFloat(document.getElementById('precio').value)||25;
+  const bags=Math.ceil(t/pz);
+  document.getElementById('cStones').textContent=t.toLocaleString();
+  document.getElementById('cBags').textContent=bags.toLocaleString();
+  document.getElementById('cCost').textContent=`$${(bags*pr).toFixed(2)}`;
+}
+
+/* ── ZOOM ── */
+function zIn(){zm=Math.min(zm+.25,5);applyZm()}
+function zOut(){zm=Math.max(zm-.25,.1);applyZm()}
+function zReset(){zm=1;applyZm()}
+function applyZm(){
+  cv.style.transform=`scale(${zm})`;
+  cv.style.transformOrigin='center center';
+  document.getElementById('stZoom').textContent=`Zoom: ${Math.round(zm*100)}%`;
+}
+
+/* ── INFO BAR ── */
+function info(){
+  const fs={linear:'LINEAL',hex:'HEXAGONAL',contour:'CONTORNO'};
+  const ss={2:'SS6',2.8:'SS10',4:'SS16',4.8:'SS20'};
+  const ssn=ss[stoneMM]||`${stoneMM}mm`;
+  document.getElementById('wsInfo').textContent=`${wcm} × ${hcm} cm · ${ssn} (${stoneMM} mm) · ${fs[fillType]}`;
+}
+
+/* ── PREVIEW MODAL ── */
+let previewFmt='svg';
+
+function openPreview(fmt){
+  if(!stones.length){alert('Aplica pedrería primero.');return;}
+  previewFmt=fmt;
+  document.getElementById('modalBackdrop').classList.add('show');
+  document.getElementById('modalLoading').style.display='flex';
+  document.getElementById('modalPreviewImg').style.display='none';
+  populateInfo(fmt);
+  // slight delay so modal renders before heavy work
+  setTimeout(()=>renderPreviewImg(fmt),80);
+}
+
+function closePreview(){
+  document.getElementById('modalBackdrop').classList.remove('show');
+}
+
+function switchFmt(fmt){
+  previewFmt=fmt;
+  document.getElementById('tabSVG').classList.toggle('active',fmt==='svg');
+  document.getElementById('tabPNG').classList.toggle('active',fmt==='png');
+  document.getElementById('modalTitle').textContent=`Vista previa — ${fmt.toUpperCase()}`;
+  document.getElementById('modalDownloadBtn').querySelector('span+*') // just update info
+  populateInfo(fmt);
+  document.getElementById('modalLoading').style.display='flex';
+  document.getElementById('modalPreviewImg').style.display='none';
+  setTimeout(()=>renderPreviewImg(fmt),60);
+}
+
+function renderPreviewImg(fmt){
+  // Always use canvas PNG as visual preview (SVG looks same at screen res)
+  const dataUrl=cv.toDataURL('image/png');
+  const img=document.getElementById('modalPreviewImg');
+  img.onload=()=>{
+    document.getElementById('modalLoading').style.display='none';
+    img.style.display='block';
+    // Estimate SVG file size
+    if(fmt==='svg'){
+      const svgStr=buildSVGString();
+      const bytes=new TextEncoder().encode(svgStr).length;
+      document.getElementById('infoSize').textContent=fmtBytes(bytes);
+    } else {
+      // PNG estimate from data URL
+      const bytes=Math.round((dataUrl.length-dataUrl.indexOf(',')-1)*0.75);
+      document.getElementById('infoSize').textContent=fmtBytes(bytes);
+    }
+  };
+  img.src=dataUrl;
+}
+
+function populateInfo(fmt){
+  const ss={2:'SS6',2.8:'SS10',4:'SS16',4.8:'SS20'};
+  const fillNames={linear:'Lineal',hex:'Hexagonal',contour:'Contorno'};
+  const pz=parseInt(document.getElementById('pzas').value)||144;
+  const pr=parseFloat(document.getElementById('precio').value)||25;
+  const bags=Math.ceil(stones.length/pz);
+
+  document.getElementById('modalTitle').textContent=`Vista previa — ${fmt.toUpperCase()}`;
+  document.getElementById('infoW').textContent=`${wcm} cm`;
+  document.getElementById('infoH').textContent=`${hcm} cm`;
+  document.getElementById('infoPx').textContent=`${cv.width} × ${cv.height} px`;
+  document.getElementById('infoStones').textContent=stones.length.toLocaleString();
+  document.getElementById('infoSS').textContent=`${ss[stoneMM]||stoneMM+'mm'} (${stoneMM}mm)`;
+  document.getElementById('infoFill').textContent=fillNames[fillType];
+  document.getElementById('infoSpacing').textContent=`${spacing} mm`;
+  document.getElementById('infoFmt').textContent=fmt.toUpperCase();
+  document.getElementById('infoFilename').textContent=`pedreria.${fmt}`;
+  document.getElementById('infoSize').textContent='Calculando…';
+  document.getElementById('infoBags').textContent=bags.toLocaleString();
+  document.getElementById('infoCost').textContent=`$${(bags*pr).toFixed(2)}`;
+  document.getElementById('tabSVG').classList.toggle('active',fmt==='svg');
+  document.getElementById('tabPNG').classList.toggle('active',fmt==='png');
+}
+
+function confirmDownload(){
+  closePreview();
+  if(previewFmt==='svg') exportSVG();
+  else exportPNG();
+}
+
+function fmtBytes(b){
+  if(b<1024)return b+' B';
+  if(b<1024*1024)return (b/1024).toFixed(1)+' KB';
+  return (b/1024/1024).toFixed(2)+' MB';
+}
+
+function buildSVGString(){
+  const wMM=wcm*10,hMM=hcm*10;
+  const r=stoneMM/2;
+  const sx=wMM/cv.width,sy=hMM/cv.height;
+  const hi=lighten(stoneColor,.5);
+  const dk=darken(stoneColor,.4);
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${wMM}mm" height="${hMM}mm" viewBox="0 0 ${wMM} ${hMM}">\n`;
+  svg+=`<defs><radialGradient id="sg" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="${hi}"/><stop offset="70%" stop-color="${stoneColor}"/><stop offset="100%" stop-color="${dk}"/></radialGradient></defs>\n`;
+  if(bgMode!=='trans'){
+    const bg=bgMode==='white'?'#ffffff':bgMode==='black'?'#000000':bgCustom;
+    svg+=`<rect width="${wMM}" height="${hMM}" fill="${bg}"/>\n`;
+  }
+  const chunks=[];
+  for(const s of stones){
+    const x=(s.x*sx).toFixed(3),y=(s.y*sy).toFixed(3);
+    chunks.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="url(#sg)"/>`);
+  }
+  svg+=chunks.join('\n')+'\n</svg>';
+  return svg;
+}
+
+/* ── EXPORT SVG ── */
+function exportSVG(){
+  if(!stones.length){alert('Aplica pedrería primero.');return;}
+  dl(new Blob([buildSVGString()],{type:'image/svg+xml'}),'pedreria.svg');
+}
+
+/* ── EXPORT PNG ── */
+function exportPNG(){dl(dataURLtoBlob(cv.toDataURL('image/png')),'pedreria.png')}
+
+/* ── HELPERS ── */
+function dl(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+function dataURLtoBlob(d){const[h,b]=d.split(',');const m=h.match(/:(.*?);/)[1];const by=atob(b);const ab=new Uint8Array(by.length);for(let i=0;i<by.length;i++)ab[i]=by.charCodeAt(i);return new Blob([ab],{type:m})}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function showOverlay(t){document.getElementById('overlayTxt').textContent=t;document.getElementById('overlay').classList.add('show')}
+function hideOverlay(){document.getElementById('overlay').classList.remove('show')}
+
+function hexToRgb(hex){
+  let h=hex.replace('#','');
+  if(h.length===3)h=h.split('').map(c=>c+c).join('');
+  const n=parseInt(h,16);
+  return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(v=>Math.min(255,Math.max(0,Math.round(v))).toString(16).padStart(2,'0')).join('')}
+function lighten(hex,amt){const{r,g,b}=hexToRgb(hex);return rgbToHex(r+(255-r)*amt,g+(255-g)*amt,b+(255-b)*amt)}
+function darken(hex,amt){const{r,g,b}=hexToRgb(hex);return rgbToHex(r*(1-amt),g*(1-amt),b*(1-amt))}
+
+/* ── TOAST ── */
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.querySelector('span').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ── START ── */
+initCanvas();
+</script>
+
+<div class="toast" id="toast">
+  <span class="material-icons-round">straighten</span>
+  <span></span>
+</div>
+</body>
+</html>
